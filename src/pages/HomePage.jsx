@@ -47,7 +47,7 @@ export default function HomePage() {
     };
     makeAPICall();
     setLoading(false);
-  }, [capitalizedString]);
+  }, []);
 
   const handleSubmitQuote = (e) => {
     e.preventDefault();
@@ -55,8 +55,6 @@ export default function HomePage() {
       ...curQuote,
       { author: quoteAuthor, quote: newQuote },
     ]);
-    setQuoteAuthor("");
-    setNewQuote("");
   };
   console.log(quotes);
   return (
@@ -117,28 +115,26 @@ export default function HomePage() {
             </div>
           </Container>
           <Container>
-            <QuotesList quotes={quotes} />
+            <QuotesList quotes={quotes} query={query} setQuotes={setQuotes} />
           </Container>
           <Container>
             <div className="archive">
               <h1>POST ARCHIVE IN ADDITION TO {quotes.length} MAIN POSTS</h1>
-              <button
-                onClick={() =>
-                  setShowArchive((s) => {
-                    !s;
-                  })
-                }
-              >
+              <button onClick={() => setShowArchive((s) => !s)}>
                 {showArchive ? "Hide Archive" : "Show Archive"}
               </button>
-              {showArchive && (
+              {!loading && showArchive && (
                 <ul>
-                  {quotes.map((quote) => (
-                    <p key={quote.quote}>{quote}</p>
-                  ))}
+                  {quotes.map(
+                    (quote) => (
+                      <p key={quote.quote}>{quote.quote}</p>
+                    )
+                    // console.log(quote)
+                  )}
                 </ul>
               )}
             </div>
+            <p> {console.log(showArchive)}</p>
           </Container>
         </div>
       )}
