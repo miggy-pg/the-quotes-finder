@@ -3,14 +3,14 @@ import Container from "../components/Common/Container";
 import Header from "../components/Common/Header";
 import QuotesList from "../components/Management/QuotesList";
 import SearchBar from "../components/Common/SearchBar";
-import Button from "../components/Common/Button";
+// import Button from "../components/Common/Button";
 
-function capitalizeFirstLetter(string) {
-  return string
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+// function capitalizeFirstLetter(string) {
+//   return string
+//     .split(" ")
+//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+//     .join(" ");
+// }
 
 const apiKey = "EbXNorgMnC8zB/xZxM3CNg==FOyxrD2aAhQMHMXc";
 const headers = {
@@ -21,7 +21,7 @@ export default function HomePage() {
   const [query, setQuery] = useState("");
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const capitalizedString = capitalizeFirstLetter(query);
+  // const capitalizedString = capitalizeFirstLetter(query);
 
   // state for new quote
   const [quoteAuthor, setQuoteAuthor] = useState("");
