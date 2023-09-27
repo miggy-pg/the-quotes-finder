@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import Container from "../components/Common/Container";
 import Header from "../components/Common/Header";
 import QuotesList from "../components/Management/QuotesList";
 import SearchBar from "../components/Common/SearchBar";
+import { faker } from "@faker-js/faker";
+import Button from "../components/Common/Button";
+
 // import Button from "../components/Common/Button";
 
 // function capitalizeFirstLetter(string) {
@@ -17,18 +20,70 @@ const headers = {
   "X-API-Key": apiKey,
 };
 
+function createRandomPost() {
+  return {
+    title: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
+    body: faker.hacker.phrase(),
+  };
+}
+
+const Archive = memo(({ loading, posts, archiveOptions, handleAddPost }) => {
+  const [showArchive, setShowArchive] = useState(archiveOptions.show);
+
+  return (
+    <Container>
+      <div className="archive">
+        <h1>{archiveOptions.title}</h1>
+        {/* <h1>POST ARCHIVE IN ADDITION TO {length} MAIN POSTS</h1> */}
+        <button onClick={() => setShowArchive((s) => !s)}>
+          {showArchive ? "Hide Archive" : "Show Archive"}
+        </button>
+        {!loading && showArchive && (
+          <ul>
+            {posts.map(
+              (quote, index) => {
+                <p key={index}>{quote.title}</p>
+                <button onClick={()=>handleAddPost(quote)}>Add to Post</button>
+              }
+              
+            )}
+            {/* {quotes.map(
+         (quote) => (
+           <p key={quote.quote}>{quote.quote}</p>
+         )
+         // console.log(quote)
+        )} */}
+          </ul>
+        )}
+      </div>
+      
+    </Container>
+  );
+});
+
+Archive.displayName = "Archive";
+export { Archive };
+
 export default function HomePage() {
   const [query, setQuery] = useState("");
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(false);
   // const capitalizedString = capitalizeFirstLetter(query);
 
+  const [posts] = useState(() =>
+    Array.from({ length: 5000 }, () => createRandomPost())
+  );
+
   // state for new quote
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [newQuote, setNewQuote] = useState("");
 
-  const [showArchive, setShowArchive] = useState(false);
-
+  const archiveOptions = useMemo(() => {
+    return {
+      show: false,
+      title: `Post archive in addition to ${quotes.length} main posts`,
+    };
+  }, [quotes.length]);
   useEffect(() => {
     const makeAPICall = async () => {
       try {
@@ -48,6 +103,10 @@ export default function HomePage() {
     makeAPICall();
     setLoading(false);
   }, []);
+
+  const handleAddPost = (quote) => {
+    setQuotes((curQuotes) => [...curQuotes, quote]);
+  };
 
   const handleSubmitQuote = (e) => {
     e.preventDefault();
@@ -117,25 +176,13 @@ export default function HomePage() {
           <Container>
             <QuotesList quotes={quotes} query={query} setQuotes={setQuotes} />
           </Container>
-          <Container>
-            <div className="archive">
-              <h1>POST ARCHIVE IN ADDITION TO {quotes.length} MAIN POSTS</h1>
-              <button onClick={() => setShowArchive((s) => !s)}>
-                {showArchive ? "Hide Archive" : "Show Archive"}
-              </button>
-              {!loading && showArchive && (
-                <ul>
-                  {quotes.map(
-                    (quote) => (
-                      <p key={quote.quote}>{quote.quote}</p>
-                    )
-                    // console.log(quote)
-                  )}
-                </ul>
-              )}
-            </div>
-            <p> {console.log(showArchive)}</p>
-          </Container>
+          <Archive
+            length={quotes.length}
+            loading={loading}
+            posts={posts}
+            archiveOptions={archiveOptions}
+            handleAddPost={handleAddPost}
+          ></Archive>
         </div>
       )}
     </div>
