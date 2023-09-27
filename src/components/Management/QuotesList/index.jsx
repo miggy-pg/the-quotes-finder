@@ -1,9 +1,10 @@
 import Card from "../../Common/Card";
 
 export default function QuotesList({ quotes, query }) {
-  const filteredQuotes = quotes.filter((quote) =>
-    quote.category.includes(query)
-  );
+  const filteredQuotes =
+    query.length > 0
+      ? quotes.filter((quote) => quote.category.includes(query))
+      : quotes;
 
   console.log("filteredQuotes: ", filteredQuotes);
   return (

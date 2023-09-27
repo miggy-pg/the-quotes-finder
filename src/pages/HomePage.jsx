@@ -1,12 +1,11 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { faker } from "@faker-js/faker";
 import Container from "../components/Common/Container";
 import Header from "../components/Common/Header";
 import QuotesList from "../components/Management/QuotesList";
-import SearchBar from "../components/Common/SearchBar";
-import { faker } from "@faker-js/faker";
-import Button from "../components/Common/Button";
-
-// import Button from "../components/Common/Button";
+import Archive from "../components/Common/Archive";
+import Banner from "../components/Common/Banner";
+import Body from "../components/Common/Body";
 
 // function capitalizeFirstLetter(string) {
 //   return string
@@ -22,47 +21,11 @@ const headers = {
 
 function createRandomPost() {
   return {
-    title: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
-    body: faker.hacker.phrase(),
+    quote: faker.hacker.phrase(),
+    author: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
+    category: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
   };
 }
-
-const Archive = memo(({ loading, posts, archiveOptions, handleAddPost }) => {
-  const [showArchive, setShowArchive] = useState(archiveOptions.show);
-
-  return (
-    <Container>
-      <div className="archive">
-        <h1>{archiveOptions.title}</h1>
-        {/* <h1>POST ARCHIVE IN ADDITION TO {length} MAIN POSTS</h1> */}
-        <button onClick={() => setShowArchive((s) => !s)}>
-          {showArchive ? "Hide Archive" : "Show Archive"}
-        </button>
-        {!loading && showArchive && (
-          <ul>
-            {posts.map(
-              (quote, index) => {
-                <p key={index}>{quote.title}</p>
-                <button onClick={()=>handleAddPost(quote)}>Add to Post</button>
-              }
-              
-            )}
-            {/* {quotes.map(
-         (quote) => (
-           <p key={quote.quote}>{quote.quote}</p>
-         )
-         // console.log(quote)
-        )} */}
-          </ul>
-        )}
-      </div>
-      
-    </Container>
-  );
-});
-
-Archive.displayName = "Archive";
-export { Archive };
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
@@ -78,6 +41,7 @@ export default function HomePage() {
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [newQuote, setNewQuote] = useState("");
 
+  // NOTE: useMemo is used to memoize a value
   const archiveOptions = useMemo(() => {
     return {
       show: false,
@@ -104,9 +68,13 @@ export default function HomePage() {
     setLoading(false);
   }, []);
 
-  const handleAddPost = (quote) => {
-    setQuotes((curQuotes) => [...curQuotes, quote]);
-  };
+  // NOTE: useCallback is used to memoize a function
+  // Aside from that, it is best to use 'quotes'(line 112) so that whenever
+  // the 'quotes'(line 69) state changes, ESLint won't complain to add it in the dependency array
+  // if you try to use 'quote' instead of 'quotes', ESLint will complain to add it in the dependency array
+  const handleAddPost = useCallback((quote) => {
+    setQuotes((quotes) => [...quotes, quote]);
+  }, []);
 
   const handleSubmitQuote = (e) => {
     e.preventDefault();
@@ -115,19 +83,12 @@ export default function HomePage() {
       { author: quoteAuthor, quote: newQuote },
     ]);
   };
-  console.log(quotes);
+
   return (
     <div className="container-fluid position-relative p-0">
       <div className="container-fluid bg-primary mb-5 hero-header">
         <Container className="py-5">
-          <div className="row justify-content-center">
-            <div className="col-lg-10 pt-lg-5 mt-lg-5 text-center">
-              <h1 className="display-3 text-white mb-3 py-3 animated slideInDown">
-                What motivation do you seek?
-              </h1>
-              <SearchBar setQuery={setQuery} />
-            </div>
-          </div>
+          <Banner setQuery={setQuery}></Banner>
         </Container>
       </div>
       {loading ? (
@@ -137,41 +98,11 @@ export default function HomePage() {
           <Header />
 
           <Container>
-            <div
-              className="col-lg-4 col-md-12 wow fadeInUp"
-              data-wow-delay="0.5s"
-            >
-              <form onSubmit={handleSubmitQuote}>
-                <div className="row g-3">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      onChange={(e) => setQuoteAuthor(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="quote"
-                      onChange={(e) => setNewQuote(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="col-12">
-                    <button
-                      className="btn btn-primary w-100 py-3"
-                      type="submit"
-                    >
-                      Add Quote
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
+            <Body
+              setQuoteAuthor={setQuoteAuthor}
+              setNewQuote={setNewQuote}
+              handleSubmitQuote={handleSubmitQuote}
+            ></Body>
           </Container>
           <Container>
             <QuotesList quotes={quotes} query={query} setQuotes={setQuotes} />
